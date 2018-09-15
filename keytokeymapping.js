@@ -29,7 +29,7 @@
 var mapKeyToKey = function (inputObject, mapObject) {
     return new Promise((resolve, reject) => {
         let resultJSONObject = {};
-        // Getting keys arrays to compare
+        // Getting keys arrays to compare with map object keys
         let inputObjectKeys = Object.keys(inputObject);
         // variable to store index of the element of inputObjectKeys array that has to be removed 
         let removeIndex;
