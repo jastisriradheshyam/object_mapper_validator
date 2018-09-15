@@ -33,7 +33,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
         let inputObjectKeys = Object.keys(inputObject);
         // variable to store index of the element of inputObjectKeys array that has to be removed 
         let removeIndex;
-        // Getting key from map Object
+        // Iterating keys from map Object
         for (let key in mapObject) {
             // Check if the key is present in the input object and store index of that element present in inputObjectKeys array
             if (inputObjectKeys.find((element, index) => {
