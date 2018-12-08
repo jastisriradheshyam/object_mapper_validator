@@ -27,9 +27,15 @@
  * @param {object} mapObject - The map object that maps the key from input to resultant object key.
  */
 var mapKeyToKey = function (inputObject, mapObject) {
-    return new Promise((resolve, reject) => {
-        let resultJSONObject = {};
-        // Getting keys arrays to compare with map object keys
+    let resultJSONObject = {};
+    let errorList = [];
+
+    // Getting keys arrays to compare with map object keys
+    if (typeof (inputObject) == "undefined" || inputObject == null) {
+        inputObject = {};
+    }
+
+    try {
         let inputObjectKeys = Object.keys(inputObject);
         // variable to store index of the element of inputObjectKeys array that has to be removed 
         let removeIndex;
@@ -40,66 +46,103 @@ var mapKeyToKey = function (inputObject, mapObject) {
                 removeIndex = index;
                 return element == key;
             })) {
+                let appendObject = inputObject[key];
                 // Removing the element from the inputObjectKeys array
                 inputObjectKeys.splice(removeIndex, 1);
-                // If there is sub object or array of key value pairs
-                if (mapObject[key][2]) {
-                    // If the value of the key has array of objects condition
-                    if (mapObject[key][3]) {
-                        // Checks if array is mandatory and input object is not array and recommended min. array size in less than or equal to 1 
-                        if (mapObject[key][3][2] == 1 && !Array.isArray(inputObject[key]) && mapObject[key][3][0] <= 1) {
-                            mapKeyToKey(inputObject[key], mapObject[key][2]).then((exchangeObject) => {
-                                resultJSONObject[mapObject[key][1]] = [];
-                                resultJSONObject[mapObject[key][1]][0] = exchangeObject;
-                            }).catch((err) => {
-                                reject(err);
-                            });
-                        } else if (mapObject[key][3][2] == 0 && !Array.isArray(inputObject[key])) { // If condition is to have object if input is also an object
-                            mapKeyToKey(inputObject[key], mapObject[key][2]).then((exchangeObject) => {
-                                resultJSONObject[mapObject[key][1]] = exchangeObject;
-                            }).catch((err) => {
-                                reject(err);
-                            });
-                        } else if (Array.isArray(inputObject[key])) { // If input value is array of objects
-                            let inputArrayLength = inputObject[key].length;
-                            // If (lower_bound =< array_length =< higher_bound) or (lower_bound =< array_length [if higher_bound == -1])
-                            if ((inputArrayLength >= mapObject[key][3][0] && inputArrayLength <= mapObject[key][3][1]) || (inputArrayLength >= mapObject[key][3][0] && mapObject[key][3][1] == -1)) {
-                                // Array initializaion
-                                resultJSONObject[mapObject[key][1]] = [];
-                                for (let i = 0; i < inputObject[key].length; i++) {
-                                    mapKeyToKey(inputObject[key][i], mapObject[key][2]).then((exchangeObject) => {
-                                        resultJSONObject[mapObject[key][1]][i] = exchangeObject;
-                                    }).catch((err) => {
-                                        reject(err);
-                                    });
-                                }
-                            } else { // If Array has length in required bound
-                                reject("Error in array bound key : '" + key + "'");
+
+                if (typeof (mapObject[key]["valueValidity"]) == "object") {
+
+                    // valid object type check
+                    let validValueType = mapObject[key]["valueValidity"]["validValueType"];
+                    if (Array.isArray(validValueType) == true) {
+                        let validTypeFlag = false;
+                        // Traversing through all valid types array
+                        for (let validityIndex = 0; validityIndex < validValueType.length; validityIndex++) {
+                            const validType = validValueType[validityIndex];
+                            if (typeof (inputObject[key]) == validType) {
+                                validTypeFlag = true;
+                            } else if (typeof (+inputObject[key]) == "number" && validType == "stringNumber") {
+                                validTypeFlag = true;
                             }
-                        } else { // If no condition satisfies (having array of objects condition)
-                            reject("Error in array portion key : '" + key + "'");
                         }
-                    } else { // if there is only object to the key as value as condition
-                        mapKeyToKey(inputObject[key], mapObject[key][2]).then((exchangeObject) => {
-                            resultJSONObject[mapObject[key][1]] = exchangeObject;
-                        }).catch((err) => {
-                            reject(err);
-                        });
+                        // check whether value is of valid type
+                        if (validTypeFlag == false) {
+                            errorList.push({
+                                "key": key
+                                , "error": "key value not a valid type. Valid key type list : " + JSON.stringify(validValueType)
+                            });
+                        }
                     }
-                } else { // If no object in the value for the ket as condition
-                    resultJSONObject[mapObject[key][1]] = inputObject[key];
+                }
+
+                //Sub object
+                if (typeof (mapObject[key]["subObject"]) == "object" && typeof (inputObject[key]) == "object") {
+                    if (mapObject[key]["subObject"]["isObjectArray"] == 1) {
+                        if (Array.isArray(inputObject[key]) == true) {
+                            let arrayObjectLength = inputObject[key].length;
+                            if (mapObject[key]["subObject"]["minLenArray"] && mapObject[key]["subObject"]["minLenArray"] >= 0 && mapObject[key]["subObject"]["minLenArray"] > arrayObjectLength) {
+                                errorList.push({ "key": key, "error": "Array length less than minimum" });
+                            } else if (mapObject[key]["subObject"]["maxLenArray"] && mapObject[key]["subObject"]["maxLenArray"] < arrayObjectLength) {
+                                errorList.push({ "key": key, "error": "Array length more than maximum" });
+                            } else {
+                                let resultObjectArray = [];
+                                let errorObjectArray = [];
+                                for (let objectArrayIndex = 0; objectArrayIndex < inputObject[key].length; objectArrayIndex++) {
+                                    let resultObject = mapKeyToKey(inputObject[key][objectArrayIndex], mapObject[key]["subObject"]["ObjectRef"]);
+                                    resultObjectArray.push(resultObject["result"]);
+                                    if (resultObject["error"] != null) {
+                                        errorObjectArray.push(resultObject["error"]);
+                                    }
+                                }
+                                appendObject = resultObjectArray;
+                                if (errorObjectArray.length != 0) {
+                                    errorList.push({ "key": key, "error": errorObjectArray });
+                                }
+                            }
+                        } else {
+                            errorList.push({ "key": key, "error": "Key is not an array" });
+                        }
+                    } else {
+                        let resultObject = mapKeyToKey(inputObject[key], mapObject[key]["subObject"]["ObjectRef"]);
+                        appendObject = resultObject["result"];
+                        if (resultObject["error"] != null) {
+                            errorList.push({ "key": key, "error": resultObject["error"] });
+                        }
+                    }
+                }
+
+                // Replacing object key name and assigning value
+                if (typeof (mapObject[key]["newKeyName"]) == "string" && mapObject[key]["newKeyName"] != '') {
+                    resultJSONObject[mapObject[key]["newKeyName"]] = appendObject;
+                } else {
+                    resultJSONObject[key] = appendObject;
                 }
             } else {
                 // Checks that the key from map object is mandatory or not 
-                if (mapObject[key][0] == 1) {
-                    reject("key : '" + key + "' not present");
+                if (mapObject[key]["mandatory"] == 1) {
+                    errorList.push({
+                        "key": key
+                        , "error": 'key not found'
+                    });
                 }
             }
         }
-        // Return the resultant object
-        resolve(resultJSONObject);
-    });
-}
+    } catch (err) {
+        errorList.push("Error while validating ERROR : " + err);
+    }
+    // Return the result and error list
+    if (errorList.length == 0) {
+        return {
+            "result": resultJSONObject
+            , "error": null
+        };
+    } else {
+        return {
+            "result": null
+            , "error": errorList
+        };
+    }
+};
 
 module.exports = {
     mapKeyToKey: mapKeyToKey

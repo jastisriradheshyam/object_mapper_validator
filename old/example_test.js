@@ -10,7 +10,7 @@ var inputObject = {
     "key_six": "key",
     "keySeven": "exchange",
     "key8": "example",
-    "ninthkey": [{
+    "ninthkey": {
         "somekey1": "with",
         "somekey2": "sub",
         "somekeythree": "-",
@@ -18,10 +18,10 @@ var inputObject = {
         "somekey_five": ".",
         "sixSomekey": "123",
         "keysomeSeven": "ABC"
-    }],
+    },
     "key10th": "hmm",
     "key12": ":)",
-    "keynew" : [{
+    "keynew" : {
         "somekey1": "with",
         "somekey2": "sub",
         "somekeythree": "-",
@@ -29,9 +29,6 @@ var inputObject = {
         "somekey_five": ".",
         "sixSomekey": "123",
         "keysomeSeven": "ABC"
-    }]
+    }
 };
-let resultObject = keytokey.mapKeyToKey(inputObject, example_map.objectMap);
-if (resultObject.error == null) {
-    console.log(resultObject.result);
-}
+keytokey.mapKeyToKey(inputObject, example_map.objectMap).then((txt) => { console.log(txt) }).catch((err) => { console.log(err) });
