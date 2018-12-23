@@ -2,71 +2,169 @@
 Key exchange in object in javascript
 
 ## Features
-- Exchange the keys as specified (in the map object)
+- Exchange the keyname with new keyname as specified (in the map object)
 - Can apply constraints like 
     - the key-value pair is mandatory or not
-- sub-object can also get key exchanged
-- there can be array of sub-objects that can have key exchange
-    - _Caveat_ : array that has to get key exchanged should be of same object
+    - value type (`validValueType`)
+- sub-object keys can also get keyname exchanged
+- there can be array of sub-objects that can have keyname exchange
+    - _Caveat_ : array that has to get keyname exchanged should be of same object
     - array bound can be set
-        - -1 for no specific upper bound
-    - can enforce only array of object(s) in resultant object
-    - sub-object in input can be converted to array of objects (only one object) in resultant object.
+        - `maxLenArray` : max length
+        - `minLenArray` : min length
+        - not specifying `maxLenArray` will have no upper bound
+    - can enforce only array of object(s) in resultant object (using `isObjectArray`)
 
 ## Map Structure
-#### inputKeyName : [mandatoryOrNot, resultantKeyName, subObjectName, [arrayLowerBound, arrayUpperBound, arrayMandatoryOrNot]]
+
+```
+{
+    "inputKeyName": {
+        "mandatory": "1"
+        , "newKeyName": "newKeyName1"
+        , "valueValidity": {
+            "validValueType": ["string","stringNumber"]
+        }
+    }
+    , "keyName2": {
+        "mandatory": "0"
+        , "subObject": {
+            "ObjectRef": subObjectName2
+            , "isObjectArray": 1
+            , "minLenArray" : 1
+            , "maxLenArray" : 3
+        }
+    }
+}
+```
 
 > __inputKeyName__ : The key name in the input object
 
-> __mandatoryOrNot__ : It enforces that the key is madatory in input and resultant object or not  
+> __mandatory__ : It enforces that the key presense in input object  
 > *__values__* : 
 > - 0 - not mandatory
 > - 1 - mandatory
 
-> __resultantKeyName__ : The key name that has to be in resultant object in place of input key name
+> __newKeyName__ : The key name that has to be in resultant object in place of input key name, if not present the __inputkeyName__ will be retained
 
-> __subObjectName__ : Object name if sub object in which key excange has to be performed (optional)
+> __valueValidity__ : object for value validity
 
-> __arrayLowerBound__ : Lower bound of number of array objects of subObjectName  
-> *__values__* : 
-> - any natural number
+> __validValueType__ : array of value type that a value for the given key be of (if key `validValueType` not present there will be no type validation)
+> - __values__ :
+>   - any valid javascript object type
+>   - `stringNumber` is a special value type which specifies that the value of number but of string type
 
-> __arrayUpperBound__ : Upper bound of number of array objects of subObjectName  
-> *__values__* : 
-> - any natural number
-> - -1 if no upper bound to be set
+> __subObject__ : subObject properties and constraints are specified here
+> __ObjectRef__ : Sub object name that has to be used
 
-> __arrayMandatoryOrNot__ : This is to enforce that the sub-object to be an array of objects   
-> *__values__* :
-> - 0 not mandatory (if object is passed in input object as value for a key then same is returned with keys exchanged)
-> - 1 mandatory (if object is passed in input object as value for a key then object will be converted to array of object and returned with keys exchanged)
+> __isObjectArray__ : condition on the object being array or not (if key not present condition is false)
+> - __values__ :  
+>   - 1 for true
+>   - 0 for false  
+
+> __minLenArray__ : Lower bound of number of array objects of subObjectName  
+> - *__values__* : any natural number
+
+> __maxLenArray__ : Upper bound of number of array objects of subObjectName  
+> - *__values__* : any natural number
 
 ## Example
 
 #### Map object:
 ```
 var subObjectMap = {
-    "somekey1": ["1", "1"],
-    "somekey2": ["0", "2"],
-    "somekeythree": ["1", "3"],
-    "somekeyFour": ["1", "4"],
-    "somekey_five": ["1", "5"],
-    "sixSomekey": ["1", "6"],
-    "keysomeSeven": ["0", "7"]
+    "somekey1": {
+        "mandatory": "1"
+        ,"newKeyName" : "1"
+    }
+    ,"somekey2": {
+        "mandatory": "1"
+        ,"newKeyName" : "2"
+    }
+    ,"somekeythree": {
+        "mandatory": "1"
+        ,"newKeyName" : "3"
+    }
+    ,"somekeyFour": {
+        "mandatory": "1"
+        ,"newKeyName" : "4"
+    },
+    "somekey_five": {
+        "mandatory": "1"
+        ,"newKeyName" : "5"
+    },
+    "sixSomekey": {
+        "mandatory": "1"
+        ,"newKeyName" : "6"
+    },
+    "keysomeSeven": {
+        "mandatory": "0"
+        ,"newKeyName" : "7"
+    }
 };
 var objectMap = {
-    "key_one": ["0", "1"],
-    "keyTwo": ["1", "2"],
-    "key3": ["1", "3"],
-    "key_four": ["1", "4"],
-    "key5": ["1", "7"],
-    "key_six": ["1", "11"],
-    "keySeven": ["1", "12"],
-    "key8": ["1", "21"],
-    "ninthkey": ["1", "24",subObjectMap,[1,-1,0]],
-    "key10th": ["1", "25"],
-    "eleventKey": ["0", "26"],
-    "key12": ["1", "32"]
+    "key_one": {
+        "mandatory": "0"
+        ,"newKeyName" : "1"
+    },
+    "keyTwo": {
+        "mandatory": "1"
+        ,"newKeyName" : "2"
+    },
+    "key3": {
+        "mandatory": "1"
+        ,"newKeyName" : "3"
+    },
+    "key_four": {
+        "mandatory": "1"
+        ,"newKeyName" : "4"
+    },
+    "key5": {
+        "mandatory": "1"
+        ,"newKeyName" : "7"
+    },
+    "key_six": {
+        "mandatory": "1"
+        ,"newKeyName" : "11"
+    },
+    "keySeven": {
+        "mandatory": "1"
+        ,"newKeyName" : "12"
+    },
+    "key8": {
+        "mandatory": "1"
+        ,"newKeyName" : "21"
+    },
+    "ninthkey": {
+        "mandatory": "1"
+        ,"newKeyName" : "24"
+        ,"subObject" : {
+            "ObjectRef": subObjectMap
+            , "isObjectArray": 1
+            , "minLenArray" : 0
+        }
+    },
+    "key10th": {
+        "mandatory": "1"
+        ,"newKeyName" : "25"
+    },
+    "eleventKey": {
+        "mandatory": "0"
+        ,"newKeyName" : "26"
+    },
+    "key12": {
+        "mandatory": "1"
+        ,"newKeyName" : "32"
+    },
+    "keynew": {
+        "mandatory": "1"
+        ,"newKeyName" : "34"
+        ,"subObject" : {
+            "ObjectRef": subObjectMap
+            , "isObjectArray": 1
+            , "minLenArray" : 1
+        }
+    }
 };
 ```
 
@@ -81,7 +179,7 @@ var inputObject = {
     "key_six": "key",
     "keySeven": "exchange",
     "key8": "example",
-    "ninthkey": {
+    "ninthkey": [{
         "somekey1": "with",
         "somekey2": "sub",
         "somekeythree": "-",
@@ -89,9 +187,18 @@ var inputObject = {
         "somekey_five": ".",
         "sixSomekey": "123",
         "keysomeSeven": "ABC"
-    },
+    }],
     "key10th": "hmm",
-    "key12": ":)"
+    "key12": ":)",
+    "keynew" : [{
+        "somekey1": "with",
+        "somekey2": "sub",
+        "somekeythree": "-",
+        "somekeyFour": "object",
+        "somekey_five": ".",
+        "sixSomekey": "123",
+        "keysomeSeven": "ABC"
+    }]
 };
 ```
 
@@ -106,13 +213,21 @@ var inputObject = {
   '12': 'exchange',
   '21': 'example',
   '24':
-   { '1': 'with',
-     '2': 'sub',
-     '3': '-',
-     '4': 'object',
-     '5': '.',
-     '6': '123',
-     '7': 'ABC' },
+   [ { '1': 'with',
+       '2': 'sub',
+       '3': '-',
+       '4': 'object',
+       '5': '.',
+       '6': '123',
+       '7': 'ABC' } ],
   '25': 'hmm',
-  '32': ':)' }
+  '32': ':)',
+  '34':
+   [ { '1': 'with',
+       '2': 'sub',
+       '3': '-',
+       '4': 'object',
+       '5': '.',
+       '6': '123',
+       '7': 'ABC' } ] }
 ```
