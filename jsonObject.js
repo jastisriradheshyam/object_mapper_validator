@@ -39,10 +39,6 @@ let obj = {
         "keyName3" : "-1.232"
     }]
 };
-hello = async () => {
 
-    var objn = validate.mapKeyToKey(obj, objectMap);
-    console.log("s d :: ", JSON.stringify(objn));
-}
-
-hello();
+var objn = validate.mapKeyToKey(obj, objectMap);
+console.log("s d :: ", JSON.stringify(objn));
