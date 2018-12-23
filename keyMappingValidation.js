@@ -37,31 +37,35 @@ var mapKeyToKey = function (inputObject, mapObject) {
 
     try {
         let inputObjectKeys = Object.keys(inputObject);
+
         // variable to store index of the element of inputObjectKeys array that has to be removed 
         let removeIndex;
+        
         // Iterating keys from map Object
         for (let key in mapObject) {
+
             // Check if the key is present in the input object and store index of that element present in inputObjectKeys array
             if (inputObjectKeys.find((element, index) => {
                 removeIndex = index;
                 return element == key;
             })) {
                 let appendObject = inputObject[key];
+
                 // Removing the element from the inputObjectKeys array
                 inputObjectKeys.splice(removeIndex, 1);
 
+                // ----- Value validation | Start | -----
                 if (typeof (mapObject[key]["valueValidity"]) == "object") {
 
                     // valid object type check
                     let validValueType = mapObject[key]["valueValidity"]["validValueType"];
                     if (Array.isArray(validValueType) == true) {
                         let validTypeFlag = false;
+
                         // Traversing through all valid types array
                         for (let validityIndex = 0; validityIndex < validValueType.length; validityIndex++) {
                             const validType = validValueType[validityIndex];
-                            if (typeof (inputObject[key]) == validType) {
-                                validTypeFlag = true;
-                            } else if (typeof (+inputObject[key]) == "number" && validType == "stringNumber") {
+                            if (typeof (inputObject[key]) == validType || (typeof (+inputObject[key]) == "number" && validType == "stringNumber")) {
                                 validTypeFlag = true;
                             }
                         }
@@ -74,8 +78,9 @@ var mapKeyToKey = function (inputObject, mapObject) {
                         }
                     }
                 }
+                // ----- Value validation | End | -----
 
-                //Sub object
+                // ----- Sub Object | Start | -----                
                 if (typeof (mapObject[key]["subObject"]) == "object" && typeof (inputObject[key]) == "object") {
                     if (mapObject[key]["subObject"]["isObjectArray"] == 1) {
                         if (Array.isArray(inputObject[key]) == true) {
@@ -85,6 +90,8 @@ var mapKeyToKey = function (inputObject, mapObject) {
                             } else if (mapObject[key]["subObject"]["maxLenArray"] && mapObject[key]["subObject"]["maxLenArray"] < arrayObjectLength) {
                                 errorList.push({ "key": key, "error": "Array length more than maximum" });
                             } else {
+
+                                // ----- Sub object array Traversal | Start | -----                
                                 let resultObjectArray = [];
                                 let errorObjectArray = [];
                                 for (let objectArrayIndex = 0; objectArrayIndex < inputObject[key].length; objectArrayIndex++) {
@@ -98,6 +105,8 @@ var mapKeyToKey = function (inputObject, mapObject) {
                                 if (errorObjectArray.length != 0) {
                                     errorList.push({ "key": key, "error": errorObjectArray });
                                 }
+                                // ----- Sub object array Traversal | Start | -----                
+                                
                             }
                         } else {
                             errorList.push({ "key": key, "error": "Key is not an array" });
@@ -110,6 +119,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
                         }
                     }
                 }
+                // ----- Sub Object | End | -----                
 
                 // Replacing object key name and assigning value
                 if (typeof (mapObject[key]["newKeyName"]) == "string" && mapObject[key]["newKeyName"] != '') {
@@ -118,6 +128,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
                     resultJSONObject[key] = appendObject;
                 }
             } else {
+
                 // Checks that the key from map object is mandatory or not 
                 if (mapObject[key]["mandatory"] == 1) {
                     errorList.push({
@@ -130,6 +141,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
     } catch (err) {
         errorList.push("Error while validating ERROR : " + err);
     }
+
     // Return the result and error list
     if (errorList.length == 0) {
         return {

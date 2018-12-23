@@ -27,7 +27,7 @@ let objectMap = {
     }
 };
 
-var validate = require("./keytokeymapping");
+var validate = require("./keyMappingValidation");
 
 let obj = {
     keyName1: "1"
@@ -41,4 +41,4 @@ let obj = {
 };
 
 var objn = validate.mapKeyToKey(obj, objectMap);
-console.log("s d :: ", JSON.stringify(objn));
+console.log("Resultant Object : ", JSON.stringify(objn));

@@ -14,6 +14,7 @@ Key exchange in object in javascript
         - `minLenArray` : min length
         - not specifying `maxLenArray` will have no upper bound
     - can enforce only array of object(s) in resultant object (using `isObjectArray`)
+- Error list of while validating and keyname exachage
 
 ## Map Structure
 

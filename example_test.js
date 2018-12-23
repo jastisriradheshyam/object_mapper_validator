@@ -1,5 +1,5 @@
 const example_map = require('./example_map.js');
-var keytokey = require('./keytokeymapping.js');
+var keytokey = require('./keyMappingValidation.js');
 
 var inputObject = {
     "key_one": "Hey",
