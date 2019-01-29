@@ -1,5 +1,5 @@
 const example_map = require('./example_map.js');
-var keytokey = require('./keyMappingValidation.js');
+var omv = require('./object_mapper_validator.js');
 
 var inputObject = {
     "key_one": "Hey",
@@ -31,7 +31,7 @@ var inputObject = {
         "keysomeSeven": "ABC"
     }]
 };
-let resultObject = keytokey.mapKeyToKey(inputObject, example_map.objectMap);
+let resultObject = omv.mapAndValidate(inputObject, example_map.objectMap);
 if (resultObject.error == null) {
     console.log(resultObject.result);
 }

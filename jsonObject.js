@@ -27,7 +27,7 @@ let objectMap = {
     }
 };
 
-var validate = require("./keyMappingValidation");
+var omv = require("./object_mapper_validator");
 
 let obj = {
     keyName1: "1"
@@ -40,5 +40,5 @@ let obj = {
     }]
 };
 
-var objn = validate.mapKeyToKey(obj, objectMap);
+var objn = omv.mapAndValidate(obj, objectMap);
 console.log("Resultant Object : ", JSON.stringify(objn));
