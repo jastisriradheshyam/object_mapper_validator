@@ -1,5 +1,5 @@
-# keytokeymapping
-Key exchange in object in javascript
+# object_mapper_validator
+Key exchange and valiation of object in javascript
 
 ## Features
 - Exchange the keyname with new keyname as specified (in the map object)
@@ -239,7 +239,7 @@ var inputObject = {
 
 ## License (MIT)
 
-Copyright (c) 2018 Jasti Sri Radhe Shyam
+Copyright (c) 2018,2019 Jasti Sri Radhe Shyam
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

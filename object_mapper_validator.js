@@ -1,4 +1,4 @@
-// Copyright 2018 Jasti Sri Radhe Shyam
+// Copyright 2018,2019 Jasti Sri Radhe Shyam
 
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the "Software"),
@@ -21,12 +21,12 @@
 // MIT License : https://opensource.org/licenses/MIT
 
 /**
- * Exchange the keys as per the condition set in the mapObject.
+ * Exchange the keys and validate as per the condition set in the mapObject.
  * @function
  * @param {object} inputObject - The input object that has keys to be replaced.
  * @param {object} mapObject - The map object that maps the key from input to resultant object key.
  */
-var mapKeyToKey = function (inputObject, mapObject) {
+var mapAndValidate = function (inputObject, mapObject) {
     let resultJSONObject = {};
     let errorList = [];
 
@@ -95,7 +95,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
                                 let resultObjectArray = [];
                                 let errorObjectArray = [];
                                 for (let objectArrayIndex = 0; objectArrayIndex < inputObject[key].length; objectArrayIndex++) {
-                                    let resultObject = mapKeyToKey(inputObject[key][objectArrayIndex], mapObject[key]["subObject"]["ObjectRef"]);
+                                    let resultObject = mapAndValidate(inputObject[key][objectArrayIndex], mapObject[key]["subObject"]["ObjectRef"]);
                                     resultObjectArray.push(resultObject["result"]);
                                     if (resultObject["error"] != null) {
                                         errorObjectArray.push(resultObject["error"]);
@@ -112,7 +112,7 @@ var mapKeyToKey = function (inputObject, mapObject) {
                             errorList.push({ "key": key, "error": "Key is not an array" });
                         }
                     } else {
-                        let resultObject = mapKeyToKey(inputObject[key], mapObject[key]["subObject"]["ObjectRef"]);
+                        let resultObject = mapAndvalidate(inputObject[key], mapObject[key]["subObject"]["ObjectRef"]);
                         appendObject = resultObject["result"];
                         if (resultObject["error"] != null) {
                             errorList.push({ "key": key, "error": resultObject["error"] });
@@ -157,5 +157,5 @@ var mapKeyToKey = function (inputObject, mapObject) {
 };
 
 module.exports = {
-    mapKeyToKey: mapKeyToKey
+    mapAndValidate: mapAndValidate
 };
