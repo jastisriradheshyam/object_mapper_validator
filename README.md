@@ -1,4 +1,12 @@
-# object_mapper_validator
+# object_validator.js
+validate object
+
+- validate the object features
+- function: `validate(inputObject, mapObject)`
+    - `inputObject`: input object
+    - `mapObject`: object containing validation rules
+
+# object_mapper_validator.js
 Key exchange and valiation of object in javascript
 
 ## Features
